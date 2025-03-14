@@ -67,6 +67,39 @@ const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
     return () => window.removeEventListener('resize', updateScale);
   }, [dimensions]);
 
+  const getRotatedDimensions = (width, length, rotation) => {
+    const isVertical = rotation % 180 !== 0; // true for 90 and 270 degrees
+    return {
+      width: isVertical ? length : width,
+      length: isVertical ? width : length
+    };
+  };
+
+  const keepInBounds = (item, dims, roomDims) => {
+    const maxX = roomDims.width * CM_TO_PIXELS - dims.width;
+    const maxY = roomDims.length * CM_TO_PIXELS - dims.length;
+    
+    return {
+      x: Math.max(0, Math.min(item.position.x, maxX)),
+      y: Math.max(0, Math.min(item.position.y, maxY))
+    };
+  };
+
+  const handleRotate = (id) => {
+    setFurniture(items =>
+      items.map(item => {
+        if (item.id === id) {
+          const newRotation = ((item.rotation || 0) + 90) % 360;
+          return {
+            ...item,
+            rotation: newRotation
+          };
+        }
+        return item;
+      })
+    );
+  };
+
   const handleDragEnd = (event) => {
     const { active, delta } = event;
     if (!active) return;
@@ -77,25 +110,9 @@ const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
           return {
             ...item,
             position: {
-              x: Math.max(0, Math.min(item.position.x + delta.x / scale, dimensions.width * CM_TO_PIXELS - item.width)),
-              y: Math.max(0, Math.min(item.position.y + delta.y / scale, dimensions.length * CM_TO_PIXELS - item.length))
+              x: item.position.x + delta.x,
+              y: item.position.y + delta.y
             }
-          };
-        }
-        return item;
-      })
-    );
-  };
-
-  const handleRotate = (id) => {
-    setFurniture(items =>
-      items.map(item => {
-        if (item.id === id) {
-          // Only update the rotation angle, don't swap dimensions
-          const newRotation = ((item.rotation || 0) + 90) % 360;
-          return {
-            ...item,
-            rotation: newRotation
           };
         }
         return item;
@@ -139,7 +156,17 @@ const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
 
   return (
     <div ref={containerRef} style={containerStyle}>
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <DndContext 
+        sensors={sensors} 
+        onDragEnd={handleDragEnd}
+        modifiers={[
+          ({transform}) => ({
+            ...transform,
+            x: transform.x / scale,
+            y: transform.y / scale
+          })
+        ]}
+      >
         <div style={canvasStyle} className="room-canvas">
           {/* Grid labels */}
           <div style={{

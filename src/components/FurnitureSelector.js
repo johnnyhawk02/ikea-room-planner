@@ -10,22 +10,25 @@ const FurnitureSelector = ({ onSelect }) => {
       {categories.map(([category, items]) => (
         <div key={category} className="mb-6">
           <h3 className="text-lg font-semibold capitalize mb-2">
-            {category.replace(/([A-Z])/g, ' $1').trim()}
+            {items.name || category.replace(/([A-Z])/g, ' $1').trim()}
           </h3>
-          <div className="grid grid-cols-1 gap-2">
-            {items.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => onSelect(item)}
-                className="p-2 bg-white rounded shadow hover:bg-gray-50 transition-colors text-left"
-              >
-                <div className="font-medium">{item.name}</div>
-                <div className="text-sm text-gray-600">
-                  {item.width}×{item.length} cm
-                </div>
-              </button>
+          <select
+            onChange={(e) => {
+              if (e.target.value) {
+                const variant = items.variants.find(v => v.id === e.target.value);
+                if (variant) onSelect(variant);
+              }
+            }}
+            className="block w-full rounded-md border border-gray-300 py-2 px-3 text-sm bg-white"
+            defaultValue=""
+          >
+            <option value="">Select {category}</option>
+            {items.variants?.map(variant => (
+              <option key={variant.id} value={variant.id}>
+                {variant.name} ({variant.width}×{variant.length}cm)
+              </option>
             ))}
-          </div>
+          </select>
         </div>
       ))}
     </div>
