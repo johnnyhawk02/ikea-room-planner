@@ -69,9 +69,9 @@ const FurnitureItem = ({ item, position, rotation = 0, scale, showLabels, onRota
     left: '50%',
     transform: `translate(-50%, -50%) scale(${1/scale})`,
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    padding: '2px 6px',
+    padding: '4px 8px',
     borderRadius: '4px',
-    fontSize: '7.2px', // Changed from 12px to 7.2px (60% of original)
+    fontSize: '12px', // Increased from 7.2px
     fontWeight: 'bold',
     whiteSpace: 'nowrap',
     pointerEvents: 'none',
@@ -122,7 +122,7 @@ const FurnitureItem = ({ item, position, rotation = 0, scale, showLabels, onRota
       <div style={labelStyle}>
         {item.name}
         <br />
-        <span style={{ fontSize: '6px' }}> {/* Changed from 10px to 6px (60% of original) */}
+        <span style={{ fontSize: '10px' }}> {/* Increased from 6px */}
           {realWidth}×{realLength}cm
         </span>
       </div>

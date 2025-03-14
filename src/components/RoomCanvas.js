@@ -151,7 +151,8 @@ const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
     setFurniture(items =>
       items.map(item => {
         if (item.id === id) {
-          const newRotation = ((item.rotation || 0) + 90) % 360;
+          // Just flip between 0 and 90 degrees
+          const newRotation = item.rotation === 90 ? 0 : 90;
           
           // Find a valid position for the rotated item
           const newPosition = findValidPosition(item, newRotation, dimensions);
