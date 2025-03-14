@@ -36,3 +36,34 @@
     transform: rotate(360deg);
   }
 }
+
+.room-canvas {
+  transition: transform 0.2s ease;
+}
+
+.furniture-item {
+  transition: transform 0.2s ease;
+}
+
+.furniture-item:hover {
+  z-index: 1000;
+}
+
+.furniture-controls {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.furniture-item:hover .furniture-controls {
+  opacity: 1;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

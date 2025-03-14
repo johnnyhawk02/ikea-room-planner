@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -10,4 +14,28 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.furniture-item {
+  transition: transform 0.2s ease;
+}
+
+.furniture-item:hover .furniture-controls {
+  opacity: 1;
+}
+
+.furniture-controls {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.rotate-btn, .delete-btn {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.rotate-btn:hover, .delete-btn:hover {
+  background: #f0f0f0;
 }
