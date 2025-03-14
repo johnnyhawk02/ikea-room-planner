@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { DndContext, useSensor, useSensors, PointerSensor, MouseSensor, TouchSensor } from '@dnd-kit/core';
 import FurnitureItem from './FurnitureItem';
 
-const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
-  const [furniture, setFurniture] = useState([]);
+const RoomCanvas = ({ dimensions, selectedFurniture, showLabels, onFurnitureChange, initialFurniture = [] }) => {
+  const [furniture, setFurniture] = useState(initialFurniture);
   const [scale, setScale] = useState(1);
   const containerRef = useRef(null);
   const sensors = useSensors(
@@ -13,6 +13,11 @@ const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
   );
   
   const CM_TO_PIXELS = 2; // 1cm = 2px for better visibility
+
+  // Add effect to update furniture when initialFurniture changes
+  useEffect(() => {
+    setFurniture(initialFurniture);
+  }, [initialFurniture]);
 
   useEffect(() => {
     if (selectedFurniture) {
@@ -38,9 +43,15 @@ const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
         originalLength: selectedFurniture.length * CM_TO_PIXELS,
         lastRotation: 0
       };
-      setFurniture(prev => [...prev, newFurniture]);
+      const updatedFurniture = [...furniture, newFurniture];
+      setFurniture(updatedFurniture);
+      onFurnitureChange(updatedFurniture);
     }
   }, [selectedFurniture, dimensions]);
+
+  useEffect(() => {
+    onFurnitureChange(furniture);
+  }, [furniture]);
 
   useEffect(() => {
     const updateScale = () => {
@@ -234,7 +245,7 @@ const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
   const containerStyle = {
     position: 'relative',
     width: '100%',
-    height: 'calc(100vh - 200px)',
+    height: 'calc(100vh - 120px)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -242,7 +253,7 @@ const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
     border: '1px solid #ccc',
     borderRadius: '4px',
     backgroundColor: '#fff',
-    padding: '40px', // Increased padding to match the calculation
+    padding: '20px',
   };
 
   const canvasStyle = {
