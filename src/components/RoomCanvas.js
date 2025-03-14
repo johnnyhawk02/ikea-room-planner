@@ -130,29 +130,54 @@ const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
     );
   };
 
+  const findValidPosition = (item, newRotation, roomDims) => {
+    // Get corners at current position with new rotation
+    const testItem = {
+      ...item,
+      rotation: newRotation
+    };
+    const corners = getRotatedCorners(testItem);
+    const maxX = roomDims.width * CM_TO_PIXELS;
+    const maxY = roomDims.length * CM_TO_PIXELS;
+    
+    // If current position works, keep it
+    if (isInsideRoom(corners, roomDims)) {
+      return item.position;
+    }
+
+    // Calculate how far out of bounds we are
+    let minAdjustX = 0;
+    let minAdjustY = 0;
+    let maxAdjustX = 0;
+    let maxAdjustY = 0;
+
+    corners.forEach(corner => {
+      if (corner.x < 0) minAdjustX = Math.min(minAdjustX, corner.x);
+      if (corner.x > maxX) maxAdjustX = Math.max(maxAdjustX, corner.x - maxX);
+      if (corner.y < 0) minAdjustY = Math.min(minAdjustY, corner.y);
+      if (corner.y > maxY) maxAdjustY = Math.max(maxAdjustY, corner.y - maxY);
+    });
+
+    // Calculate new position that brings all corners inside
+    return {
+      x: item.position.x - minAdjustX - maxAdjustX,
+      y: item.position.y - minAdjustY - maxAdjustY
+    };
+  };
+
   const handleRotate = (id) => {
     setFurniture(items =>
       items.map(item => {
         if (item.id === id) {
           const newRotation = ((item.rotation || 0) + 90) % 360;
           
-          // Create test item with new rotation
-          const testItem = {
-            ...item,
-            rotation: newRotation
-          };
-
-          // Get corners after rotation
-          const corners = getRotatedCorners(testItem);
-
-          // Check if rotation would keep item in bounds
-          if (!isInsideRoom(corners, dimensions)) {
-            return item; // Keep old rotation if new rotation would be invalid
-          }
+          // Find a valid position for the rotated item
+          const newPosition = findValidPosition(item, newRotation, dimensions);
 
           return {
             ...item,
-            rotation: newRotation
+            rotation: newRotation,
+            position: newPosition
           };
         }
         return item;
