@@ -67,24 +67,6 @@ const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
     return () => window.removeEventListener('resize', updateScale);
   }, [dimensions]);
 
-  const getRotatedDimensions = (width, length, rotation) => {
-    const isVertical = rotation % 180 !== 0; // true for 90 and 270 degrees
-    return {
-      width: isVertical ? length : width,
-      length: isVertical ? width : length
-    };
-  };
-
-  const keepInBounds = (item, dims, roomDims) => {
-    const maxX = roomDims.width * CM_TO_PIXELS - dims.width;
-    const maxY = roomDims.length * CM_TO_PIXELS - dims.length;
-    
-    return {
-      x: Math.max(0, Math.min(item.position.x, maxX)),
-      y: Math.max(0, Math.min(item.position.y, maxY))
-    };
-  };
-
   const getRotatedCorners = (item) => {
     const rad = (item.rotation || 0) * Math.PI / 180;
     const cos = Math.cos(rad);
