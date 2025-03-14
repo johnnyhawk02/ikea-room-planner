@@ -89,6 +89,7 @@ const FurnitureItem = ({ item, position, rotation = 0, scale, showLabels, onRota
         onPointerDown={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
       >
         <button
           type="button"
@@ -98,8 +99,14 @@ const FurnitureItem = ({ item, position, rotation = 0, scale, showLabels, onRota
             e.stopPropagation();
             onRotate();
           }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onRotate();
+          }}
           onPointerDown={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           title="Rotate 90°"
         >
           🔄
@@ -112,8 +119,14 @@ const FurnitureItem = ({ item, position, rotation = 0, scale, showLabels, onRota
             e.stopPropagation();
             onDelete();
           }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onDelete();
+          }}
           onPointerDown={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           title="Delete"
         >
           ❌
