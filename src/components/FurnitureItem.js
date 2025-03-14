@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 
-const FurnitureItem = ({ item, position, rotation = 0, scale, onRotate, onDelete }) => {
+const FurnitureItem = ({ item, position, rotation = 0, scale, showLabels, onRotate, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: item.id,
     data: item,
@@ -11,8 +11,8 @@ const FurnitureItem = ({ item, position, rotation = 0, scale, onRotate, onDelete
     position: 'absolute',
     width: `${item.width}px`,
     height: `${item.length}px`,
-    left: position.x,
-    top: position.y,
+    left: `${position.x}px`,
+    top: `${position.y}px`,
     backgroundColor: item.color || '#B8B8B8',
     border: '2px solid #666',
     borderRadius: '2px',
@@ -20,11 +20,10 @@ const FurnitureItem = ({ item, position, rotation = 0, scale, onRotate, onDelete
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'move',
-    transform: `${transform ? 
-      `translate3d(${transform.x}px, ${transform.y}px, 0) ` : 
-      ''}rotate(${rotation}deg)`,
+    transform: transform ? 
+      `translate3d(${transform.x}px, ${transform.y}px, 0) rotate(${rotation}deg)` : 
+      `rotate(${rotation}deg)`,
     transformOrigin: 'center',
-    transition: transform ? 'none' : 'box-shadow 0.2s',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     userSelect: 'none',
     touchAction: 'none',
@@ -43,7 +42,7 @@ const FurnitureItem = ({ item, position, rotation = 0, scale, onRotate, onDelete
     borderRadius: '4px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     zIndex: 1001,
-    transformOrigin: 'center',
+    pointerEvents: 'all',
   };
 
   const buttonStyle = {
@@ -59,8 +58,9 @@ const FurnitureItem = ({ item, position, rotation = 0, scale, onRotate, onDelete
     fontSize: '16px',
     padding: 0,
     lineHeight: 1,
-    transformOrigin: 'center',
     transform: `scale(${1/scale})`,
+    pointerEvents: 'all',
+    touchAction: 'none',
   };
 
   const labelStyle = {
@@ -75,24 +75,30 @@ const FurnitureItem = ({ item, position, rotation = 0, scale, onRotate, onDelete
     fontWeight: 'bold',
     whiteSpace: 'nowrap',
     pointerEvents: 'none',
-    transformOrigin: 'center',
+    display: showLabels ? 'block' : 'none',
   };
 
-  // Real dimensions in cm (without pixel scaling)
-  const realWidth = item.width / 2; // Convert back from pixels to cm
+  const realWidth = item.width / 2;
   const realLength = item.length / 2;
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <div 
         style={controlsStyle} 
-        onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           style={buttonStyle}
-          onClick={onRotate}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onRotate();
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
           title="Rotate 90°"
         >
           🔄
@@ -100,7 +106,13 @@ const FurnitureItem = ({ item, position, rotation = 0, scale, onRotate, onDelete
         <button
           type="button"
           style={buttonStyle}
-          onClick={onDelete}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onDelete();
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
           title="Delete"
         >
           ❌

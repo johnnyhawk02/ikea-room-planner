@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { DndContext, useSensor, useSensors, PointerSensor, MouseSensor, TouchSensor } from '@dnd-kit/core';
 import FurnitureItem from './FurnitureItem';
 
-const RoomCanvas = ({ dimensions, selectedFurniture }) => {
+const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
   const [furniture, setFurniture] = useState([]);
   const [scale, setScale] = useState(1);
   const containerRef = useRef(null);
@@ -33,7 +33,10 @@ const RoomCanvas = ({ dimensions, selectedFurniture }) => {
         },
         rotation: 0,
         width: selectedFurniture.width * CM_TO_PIXELS,
-        length: selectedFurniture.length * CM_TO_PIXELS
+        length: selectedFurniture.length * CM_TO_PIXELS,
+        originalWidth: selectedFurniture.width * CM_TO_PIXELS,
+        originalLength: selectedFurniture.length * CM_TO_PIXELS,
+        lastRotation: 0
       };
       setFurniture(prev => [...prev, newFurniture]);
     }
@@ -71,15 +74,12 @@ const RoomCanvas = ({ dimensions, selectedFurniture }) => {
     setFurniture(items =>
       items.map(item => {
         if (item.id === active.id) {
-          const newX = Math.max(0, Math.min(item.position.x + delta.x, dimensions.width * CM_TO_PIXELS - item.width));
-          const newY = Math.max(0, Math.min(item.position.y + delta.y, dimensions.length * CM_TO_PIXELS - item.length));
-          
           return {
             ...item,
             position: {
-              x: newX,
-              y: newY,
-            },
+              x: Math.max(0, Math.min(item.position.x + delta.x / scale, dimensions.width * CM_TO_PIXELS - item.width)),
+              y: Math.max(0, Math.min(item.position.y + delta.y / scale, dimensions.length * CM_TO_PIXELS - item.length))
+            }
           };
         }
         return item;
@@ -91,14 +91,11 @@ const RoomCanvas = ({ dimensions, selectedFurniture }) => {
     setFurniture(items =>
       items.map(item => {
         if (item.id === id) {
+          // Only update the rotation angle, don't swap dimensions
           const newRotation = ((item.rotation || 0) + 90) % 360;
-          // Swap width and length if rotation is 90 or 270 degrees
-          const shouldSwap = newRotation % 180 !== 0;
           return {
             ...item,
-            rotation: newRotation,
-            width: shouldSwap ? item.length : item.originalWidth || item.width,
-            length: shouldSwap ? item.width : item.originalLength || item.length,
+            rotation: newRotation
           };
         }
         return item;
@@ -176,6 +173,7 @@ const RoomCanvas = ({ dimensions, selectedFurniture }) => {
               position={item.position}
               rotation={item.rotation}
               scale={scale}
+              showLabels={showLabels}
               onRotate={() => handleRotate(item.id)}
               onDelete={() => handleDelete(item.id)}
             />
