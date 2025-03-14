@@ -219,5 +219,52 @@ export const furnitureCatalog = {
         color: '#808080'
       }
     ]
+  },
+  desks: {
+    name: "Desks",
+    variants: [
+      {
+        id: 'pahl-standard',
+        name: 'PÅHL Desk',
+        type: 'desk',
+        width: 128,
+        length: 58,
+        height: 75,
+        color: '#ffffff',
+        adjustable: true
+      },
+      {
+        id: 'pahl-small',
+        name: 'PÅHL Small Desk',
+        type: 'desk',
+        width: 96,
+        length: 58,
+        height: 75,
+        color: '#ffffff',
+        adjustable: true
+      },
+      {
+        id: 'pahl-corner-right',
+        name: 'PÅHL Corner Desk (Right)',
+        type: 'desk',
+        width: 128,
+        length: 58,
+        height: 75,
+        color: '#ffffff',
+        adjustable: true,
+        corner: 'right'
+      },
+      {
+        id: 'pahl-corner-left',
+        name: 'PÅHL Corner Desk (Left)',
+        type: 'desk',
+        width: 128,
+        length: 58,
+        height: 75,
+        color: '#ffffff',
+        adjustable: true,
+        corner: 'left'
+      }
+    ]
   }
 };

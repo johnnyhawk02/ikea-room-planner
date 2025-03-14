@@ -85,11 +85,71 @@ const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
     };
   };
 
+  const getRotatedCorners = (item) => {
+    const rad = (item.rotation || 0) * Math.PI / 180;
+    const cos = Math.cos(rad);
+    const sin = Math.sin(rad);
+    
+    // Get center point
+    const centerX = item.position.x + item.width / 2;
+    const centerY = item.position.y + item.length / 2;
+    
+    // Get corners relative to center
+    const w = item.width / 2;
+    const h = item.length / 2;
+    
+    // Calculate rotated corners
+    return [
+      { // Top-left
+        x: centerX + (-w * cos - (-h) * sin),
+        y: centerY + (-w * sin + (-h) * cos)
+      },
+      { // Top-right
+        x: centerX + (w * cos - (-h) * sin),
+        y: centerY + (w * sin + (-h) * cos)
+      },
+      { // Bottom-right
+        x: centerX + (w * cos - h * sin),
+        y: centerY + (w * sin + h * cos)
+      },
+      { // Bottom-left
+        x: centerX + (-w * cos - h * sin),
+        y: centerY + (-w * sin + h * cos)
+      }
+    ];
+  };
+
+  const isInsideRoom = (corners, roomDims) => {
+    const maxX = roomDims.width * CM_TO_PIXELS;
+    const maxY = roomDims.length * CM_TO_PIXELS;
+    
+    // Check if all corners are within room bounds
+    return corners.every(pt => 
+      pt.x >= 0 && pt.x <= maxX && 
+      pt.y >= 0 && pt.y <= maxY
+    );
+  };
+
   const handleRotate = (id) => {
     setFurniture(items =>
       items.map(item => {
         if (item.id === id) {
           const newRotation = ((item.rotation || 0) + 90) % 360;
+          
+          // Create test item with new rotation
+          const testItem = {
+            ...item,
+            rotation: newRotation
+          };
+
+          // Get corners after rotation
+          const corners = getRotatedCorners(testItem);
+
+          // Check if rotation would keep item in bounds
+          if (!isInsideRoom(corners, dimensions)) {
+            return item; // Keep old rotation if new rotation would be invalid
+          }
+
           return {
             ...item,
             rotation: newRotation
@@ -107,12 +167,51 @@ const RoomCanvas = ({ dimensions, selectedFurniture, showLabels }) => {
     setFurniture(items =>
       items.map(item => {
         if (item.id === active.id) {
+          // Calculate proposed new position
+          const newPosition = {
+            x: item.position.x + delta.x,
+            y: item.position.y + delta.y
+          };
+
+          // Create test item with new position
+          const testItem = {
+            ...item,
+            position: newPosition
+          };
+
+          // Get corners of rotated item at new position
+          const corners = getRotatedCorners(testItem);
+
+          // Check if new position would be valid
+          if (!isInsideRoom(corners, dimensions)) {
+            // Try to snap to closest valid position
+            const maxX = dimensions.width * CM_TO_PIXELS;
+            const maxY = dimensions.length * CM_TO_PIXELS;
+            
+            // Find the amount we need to adjust by checking how far out of bounds we are
+            let adjustX = 0;
+            let adjustY = 0;
+            
+            corners.forEach(corner => {
+              if (corner.x < 0) adjustX = Math.max(adjustX, -corner.x);
+              if (corner.x > maxX) adjustX = Math.min(adjustX, maxX - corner.x);
+              if (corner.y < 0) adjustY = Math.max(adjustY, -corner.y);
+              if (corner.y > maxY) adjustY = Math.min(adjustY, maxY - corner.y);
+            });
+
+            // Apply the adjustment
+            return {
+              ...item,
+              position: {
+                x: newPosition.x + adjustX,
+                y: newPosition.y + adjustY
+              }
+            };
+          }
+
           return {
             ...item,
-            position: {
-              x: item.position.x + delta.x,
-              y: item.position.y + delta.y
-            }
+            position: newPosition
           };
         }
         return item;
